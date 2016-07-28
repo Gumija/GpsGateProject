@@ -5,8 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GpsGateProject"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="700" Width="700" ResizeMode="NoResize">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="600"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="600"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Column="1">
+            <Label>X:</Label>
+            <Label Name="lblX" Content="{Binding p1.X}"></Label>
+            <Label>Y:</Label>
+            <Label Name="lblY">?</Label>
+        </StackPanel>
+        <Border Grid.Column="1" Grid.Row="1" BorderThickness="1" BorderBrush="Black">
+            <Grid Name="gArea"  MouseLeftButtonUp="gArea_MouseLeftButtonUp">
+                <Image Name="imgImage" Source="C:\Users\gumij\Pictures\nearxD.png"></Image>
+            </Grid>
+        </Border>
         
     </Grid>
 </Window>
