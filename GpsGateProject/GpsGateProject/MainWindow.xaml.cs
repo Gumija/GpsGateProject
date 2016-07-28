@@ -95,6 +95,11 @@ namespace GpsGateProject
         }
 
 
+        // ------------------------------------------------
+        // ----------------  REFACTOR TO MVVM -------------
+        // ------------------------------------------------
+        // TODO: Refactor to MVVM
+
         Point p1 = new Point(-1,-1);
         Point p2 = new Point(-1, -1);
         private void gArea_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
