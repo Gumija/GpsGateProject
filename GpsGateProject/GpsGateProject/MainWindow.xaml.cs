@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,27 +23,33 @@ namespace GpsGateProject
     public partial class MainWindow : Window
     {
 
-        private Color[,] colorArray = new Color[600, 600];
+        private Color[,] colorArray = new Color[500, 500];
         private int height;
         private int width;
+        private Color backgroundColor = new Color()
+        {
+            R = 255,
+            G = 255,
+            B = 255
+        };
+
+        private static readonly Random Random = new Random();
+
 
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = this;
 
             height = colorArray.GetUpperBound(0) + 1;
             width = colorArray.GetUpperBound(1) + 1;
 
+            // init colors
             for (int y = 0; y < height; ++y)
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    colorArray[y, x] = new Color()
-                    {
-                        R = 255,
-                        G = 255,
-                        B = 255
-                    };
+                    colorArray[y, x] = backgroundColor;
                 }
             }
 
@@ -94,42 +101,70 @@ namespace GpsGateProject
             imgImage.Source = bImg;
         }
 
-
-        // ------------------------------------------------
-        // ----------------  REFACTOR TO MVVM -------------
-        // ------------------------------------------------
-        // TODO: Refactor to MVVM
-
-        Point p1 = new Point(-1,-1);
-        Point p2 = new Point(-1, -1);
-        private void gArea_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        public Point p1 { get; set; } = new Point(-1, -1);
+        public Point p2 { get; set; } = new Point(-1, -1);
+        private async void imgImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             // Reset points if both have been added
-            if(p2 != new Point(-1, -1))
+            if (p2 != new Point(-1, -1))
             {
                 p1 = new Point(-1, -1);
                 p2 = new Point(-1, -1);
             }
             Point p = e.GetPosition((IInputElement)sender);
-            
-            if(p1 == null)
+
+            if (p1 == new Point(-1, -1))
             {
                 p1 = p;
             }
             else
             {
                 p2 = p;
+
+                List<Node> path = new List<Node>();
                 // Calculate path
-
+                path = await Task.Run(() =>
+                {
+                    try
+                    {
+                        return Dijkstra.Run(p1, p2, width, height);
+                    }
+                    catch (NoSuchPathException)
+                    {
+                        MessageBox.Show("No such path!");
+                    }
+                    catch (StartAlreadyPartOfPathException)
+                    {
+                        MessageBox.Show("Start point is already a part of a path!");
+                    }
+                    catch (EndAlreadyPartOfPathException)
+                    {
+                        MessageBox.Show("End point is already a part of a path!");
+                    }
+                    return new List<Node>();
+                });
                 // Draw path to colorArray
-
+                setPathColors(path);
             }
-
-            // TODO make it a binding
-            lblX.Content = p.X;
-            lblY.Content = p.Y;
-
             printColorArray();
+        }
+
+        private void setPathColors(List<Node> path)
+        {
+            Color pathColor = new Color()
+            {
+                R = Convert.ToByte(Random.Next(0, 150)),
+                G = Convert.ToByte(Random.Next(0, 150)),
+                B = Convert.ToByte(Random.Next(0, 150))
+            };
+            foreach (Node item in path)
+            {
+                if (colorArray[item.Y, item.X] != backgroundColor)
+                {
+                    throw new Exception("Pathes crossing!!!");
+                }
+                colorArray[item.Y, item.X] = pathColor;
+            }
         }
     }
 }
